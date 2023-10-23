@@ -10,7 +10,75 @@ class TTTBoard:
             represent moves by player 'O' and '*'s are spots no one has yet played on
     """
 
-    pass
+    default_board = [
+        "*", "*", "*",
+        "*", "*", "*",
+        "*", "*", "*",
+    ]
+
+    def __init__(self):
+        self.board = TTTBoard.default_board[:]
+    
+    def __str__(self):
+        return (
+            f"{self.board[0]} {self.board[1]} {self.board[2]}\n"
+            f"{self.board[3]} {self.board[4]} {self.board[5]}\n"
+            f"{self.board[6]} {self.board[7]} {self.board[8]}\n"
+        )
+
+    def make_move(self, player, pos):
+        if self.board[pos] == "*":
+            self.board[pos] = player
+            return True
+        return False
+    
+    def has_won(self, player):
+        # Horizontal Wins
+        for i in range(3):
+            for k in range(3):
+                if self.board[i * 3 + k] != player:
+                    break
+                if k == 2:
+                    return True
+        
+        # Vertical Wins
+        for i in range(3):
+            for k in [0, 3, 6]:
+                if self.board[i + k] != player:
+                    break
+                if k == 6:
+                    return True
+        
+        # Diagnol Win from Top-Left to Bottom-Right
+        for i in [0, 4, 8]:
+            if self.board[i] != player:
+                break
+            if i == 8:
+                return True
+        
+        # Diagnol Win from Top-Right to Bottom-Left
+        for i in [2, 4, 6]:
+            if self.board[i] != player:
+                break
+            if i == 6:
+                return True
+        
+        return False
+    
+    def game_over(self):
+        # Checks if X or O won
+        if self.has_won("X") or self.has_won("O"):
+            return True
+        
+        # Checks if board is full
+        try:
+            self.board.index("*")
+            return False
+        except ValueError:
+            return True
+        
+    def clear(self):
+        self.board = TTTBoard.default_board[:]
 
 
 def play_tic_tac_toe() -> None:
@@ -89,4 +157,4 @@ if __name__ == "__main__":
     print("All tests passed!")
 
     # uncomment to play!
-    # play_tic_tac_toe()
+    play_tic_tac_toe()
