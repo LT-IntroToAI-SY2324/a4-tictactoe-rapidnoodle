@@ -1,0 +1,33 @@
+{
+	"wins": 0,
+	"loses": 0,
+	"ties": 0,
+	"cases": [
+		{
+			"board": [ "*", "*", "*" ],
+			"possibleMoves": [
+				{
+					"move": [ "X", "*", "*" ],
+					"bias": 1
+				}
+			]
+		},
+		{
+			"board": [ "X", "*", "*" ],
+			"possibleMoves": [
+				{
+					"move": [ "X", "O", "*" ],
+					"bias": 2
+				},
+				{
+					"move": [ "X", "*", "O" ],
+					"bias": 1
+				}
+			]
+		},
+		{
+			"board": [ "X", "O", "X" ],
+			"possibleMoves": []
+		}
+	]
+}
