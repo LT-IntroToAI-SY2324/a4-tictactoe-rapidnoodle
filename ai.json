@@ -7,7 +7,7 @@
 			"board": [ "*", "*", "*" ],
 			"possibleMoves": [
 				{
-					"move": [ "X", "*", "*" ],
+					"move": 0,
 					"bias": 1
 				}
 			]
@@ -16,11 +16,11 @@
 			"board": [ "X", "*", "*" ],
 			"possibleMoves": [
 				{
-					"move": [ "X", "O", "*" ],
+					"move": 1,
 					"bias": 2
 				},
 				{
-					"move": [ "X", "*", "O" ],
+					"move": 2,
 					"bias": 1
 				}
 			]

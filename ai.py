@@ -6,6 +6,8 @@
 # Test it out manually, see the changes in ai.json
 # Write either a random move player or smart player to play 1,000+ games so the ai learns how to play faster
 
+from a4 import TTTBoard
+import random
 import json
 
 def get_data():
@@ -25,10 +27,8 @@ def generate_moves(board):
     }
     for i in range(len(board)):
         if board[i] != "*": continue
-        moved = board[:]
-        moved[i] = "O"
         new_case["possibleMoves"].append({
-            "move": moved,
+            "move": i,
             "bias": 1
         })
     return new_case
@@ -44,8 +44,29 @@ def index_of_case(cases, board):
 def predict_move(board):
     data = get_data()
     index = index_of_case(data["cases"], board)
-    # pick back up here
+    if index == -1:
+        index = len(data["cases"])
+        data["cases"].append(generate_moves(board))
+        post_data(data)
+    possible_moves = data["cases"][index]["possibleMoves"]
 
+    total_bias = 0
+    for move in possible_moves:
+        total_bias += move["bias"]
+    random_bias = random.randint(1, total_bias)
+
+    count = 0
+    for move in possible_moves:
+        if random_bias <= count + move["bias"]:
+            return move["move"]
+        count += move["bias"]
+
+
+def find_move(before, after):
+    for i in range(len(before)):
+        if before[i] != after[i]:
+            return i
+    return -1
 
 def update_bias(moves, mod):
     data = get_data()
@@ -62,7 +83,7 @@ def update_bias(moves, mod):
         elif current_case != -1:
             # bot move
             for k in range(len(data["cases"][current_case]["possibleMoves"])):
-                if data["cases"][current_case]["possibleMoves"][k]["move"] == moves[i]:
+                if data["cases"][current_case]["possibleMoves"][k]["move"] == find_move(moves[i - 1], moves[i]):
                     data["cases"][current_case]["possibleMoves"][k]["bias"] += mod
     
     post_data(data)
@@ -76,7 +97,7 @@ moves = [
     ["X", "O", "X"]
 ]
 # update_bias(moves, 1)
-print(get_data())
+print(predict_move(["X", "*", "*"]))
 
 # {
 #     "wins": 0,
@@ -94,3 +115,52 @@ print(get_data())
 #         }
 #     ]
 # }
+
+def play_tic_tac_toe_with_ai() -> None:
+    """Uses my cool ai to play TicTacToe"""
+
+    def is_int(maybe_int: str):
+        """Returns True if val is int, False otherwise
+
+        Args:
+            maybe_int - string to check if it's an int
+
+        Returns:
+            True if maybe_int is an int, False otherwise
+        """
+        try:
+            int(maybe_int)
+            return True
+        except ValueError:
+            return False
+
+    brd = TTTBoard()
+    players = ["X", "O"]
+    turn = 0
+
+    while not brd.game_over():
+        print(brd)
+        move_index: int = 0
+        if turn:
+            move: str = input("Human, what is your move? ")
+            if not is_int(move):
+                raise ValueError(
+                    f"Given invalid position {move}, position must be integer between 0 and 8 inclusive"
+                )
+            move_index = int(move)
+        else:
+            move_index = predict_move(brd)
+
+        if brd.make_move(players[turn], move_index):
+            turn = not turn
+
+    print(f"\nGame over!\n\n{brd}")
+    if brd.has_won(players[0]):
+        print(f"Human wins!")
+    elif brd.has_won(players[1]):
+        print(f"AI wins!")
+    else:
+        print(f"Board full, cat's game!")
+
+
+play_tic_tac_toe_with_ai()
