@@ -84,7 +84,9 @@ def update_bias(moves, mod):
             # bot move
             for k in range(len(data["cases"][current_case]["possibleMoves"])):
                 if data["cases"][current_case]["possibleMoves"][k]["move"] == find_move(moves[i - 1], moves[i]):
-                    data["cases"][current_case]["possibleMoves"][k]["bias"] += mod
+                    new_bias = data["cases"][current_case]["possibleMoves"][k]["bias"] + mod
+                    if new_bias < 0: continue
+                    data["cases"][current_case]["possibleMoves"][k]["bias"] = new_bias
     
     post_data(data)
 
@@ -137,11 +139,12 @@ def play_tic_tac_toe_with_ai() -> None:
     brd = TTTBoard()
     players = ["X", "O"]
     turn = 0
+    game_moves = []
 
     while not brd.game_over():
         print(brd)
         move_index: int = 0
-        if turn:
+        if turn == 0:
             move: str = input("Human, what is your move? ")
             if not is_int(move):
                 raise ValueError(
@@ -149,18 +152,52 @@ def play_tic_tac_toe_with_ai() -> None:
                 )
             move_index = int(move)
         else:
-            move_index = predict_move(brd)
+            move_index = predict_move(brd.board)
 
         if brd.make_move(players[turn], move_index):
             turn = not turn
+            print(brd.board)
+            print(game_moves)
+            game_moves.append(brd.board)
+            print(game_moves)
 
     print(f"\nGame over!\n\n{brd}")
     if brd.has_won(players[0]):
         print(f"Human wins!")
+        update_bias(game_moves, -1)
     elif brd.has_won(players[1]):
         print(f"AI wins!")
+        update_bias(game_moves, 2)
     else:
         print(f"Board full, cat's game!")
+        update_bias(game_moves, 1)
+
+
+def run_tic_tac_toe_with_ai(games: int) -> None:
+    """Uses my cool ai to run TicTacToe games"""
+
+    for i in range(games):
+        brd = TTTBoard()
+        players = ["X", "O"]
+        turn = 0
+        moves = []
+
+        while not brd.game_over():
+            move_index: int = random.randint(0, 8) if turn == 0 else predict_move(brd.board)
+            if brd.make_move(players[turn], move_index):
+                turn = not turn
+                moves.append(brd.board)
+
+        if brd.has_won(players[0]):
+            print(f"Human wins!")
+            update_bias(moves, -1)
+        elif brd.has_won(players[1]):
+            print(f"AI wins!")
+            update_bias(moves, 2)
+        else:
+            print(f"Board full, cat's game!")
+            update_bias(moves, 1)
 
 
 play_tic_tac_toe_with_ai()
+# run_tic_tac_toe_with_ai(1000)
