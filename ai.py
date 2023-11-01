@@ -68,6 +68,7 @@ def find_move(before, after):
             return i
     return -1
 
+
 def update_bias(moves, mod):
     data = get_data()
     current_case = -1
@@ -85,38 +86,11 @@ def update_bias(moves, mod):
             for k in range(len(data["cases"][current_case]["possibleMoves"])):
                 if data["cases"][current_case]["possibleMoves"][k]["move"] == find_move(moves[i - 1], moves[i]):
                     new_bias = data["cases"][current_case]["possibleMoves"][k]["bias"] + mod
-                    if new_bias < 0: continue
+                    if new_bias < 1: continue
                     data["cases"][current_case]["possibleMoves"][k]["bias"] = new_bias
     
     post_data(data)
 
-
-# print(generate_moves(["*", "*", "*"]))
-
-moves = [
-    ["X", "*", "*"],
-    ["X", "O", "*"],
-    ["X", "O", "X"]
-]
-# update_bias(moves, 1)
-print(predict_move(["X", "*", "*"]))
-
-# {
-#     "wins": 0,
-#     "loses": 0,
-#     "ties": 0,
-#     "cases": [
-#         {
-#             "board": ["*", "*", "*"],
-#             "possibleMoves": [
-#                 {
-#                     "move": ["X", "*", "*"],
-#                     "bias": 1
-#                 }
-#             ]
-#         }
-#     ]
-# }
 
 def play_tic_tac_toe_with_ai() -> None:
     """Uses my cool ai to play TicTacToe"""
@@ -156,10 +130,7 @@ def play_tic_tac_toe_with_ai() -> None:
 
         if brd.make_move(players[turn], move_index):
             turn = not turn
-            print(brd.board)
-            print(game_moves)
-            game_moves.append(brd.board)
-            print(game_moves)
+            game_moves.append(brd.board[:])
 
     print(f"\nGame over!\n\n{brd}")
     if brd.has_won(players[0]):
@@ -176,6 +147,16 @@ def play_tic_tac_toe_with_ai() -> None:
 def run_tic_tac_toe_with_ai(games: int) -> None:
     """Uses my cool ai to run TicTacToe games"""
 
+    def make_random_move(board):
+        random_value = random.randint(0, board.count("*") - 1)
+        count = 0
+        for i in range(len(board)):
+            if board[i] == "*":
+                if count == random_value:
+                    return i
+                count += 1
+
+
     for i in range(games):
         brd = TTTBoard()
         players = ["X", "O"]
@@ -183,10 +164,10 @@ def run_tic_tac_toe_with_ai(games: int) -> None:
         moves = []
 
         while not brd.game_over():
-            move_index: int = random.randint(0, 8) if turn == 0 else predict_move(brd.board)
+            move_index: int = make_random_move(brd.board) if turn == 0 else predict_move(brd.board)
             if brd.make_move(players[turn], move_index):
                 turn = not turn
-                moves.append(brd.board)
+                moves.append(brd.board[:])
 
         if brd.has_won(players[0]):
             print(f"Human wins!")
